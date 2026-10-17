@@ -98,6 +98,7 @@ textarea:focus, input:focus, select:focus { outline: 2px solid rgba(16,185,129,.
 
 mark { border-radius: 5px; padding: 1px 3px; color: inherit; }
 mark.r1 { background: #CFF1E1; } mark.r2 { background: #FBE3B8; } mark.r3 { background: #DCE7F7; }
+mark.r4 { background: #EADCF5; } mark.r5 { background: #F6D9D4; }
 .redacted { display: inline-block; font-family: ui-monospace, Consolas, monospace; font-size: .8em; background: var(--forest); color: #fff; border-radius: 5px; padding: 0 6px; }
 
 /* Review queue */
