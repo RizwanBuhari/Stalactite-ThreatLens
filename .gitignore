@@ -23,3 +23,6 @@ run/
 # pre-event setup helpers (written before the datathon window; not part of the submission)
 scripts/setup_check.py
 tools/push_to_server.sh
+
+# submission pack (kept locally only)
+submission/

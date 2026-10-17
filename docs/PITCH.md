@@ -19,7 +19,7 @@ Judging (10 points each): **community value and theme fit**, **novelty**, **tech
 
 **Recording tips:** record the app at 1536×960 or larger. Use `#/analyze?sample=1` for a guaranteed clean first result (it includes an IP and a domain to show masking). Keep the video under 3:00, because the time limit is part of the score.
 
-## Deck (14 slides: `submission/Stalactite_IBM Z Datathon 2026 Project.pdf`)
+## Deck (14 slides, submitted as `Stalactite_IBM Z Datathon 2026 Project.pdf`)
 
 1. Cover: ThreatLens, MAHE Dubai, Team Stalactite
 2. Problem: specialist work, consistency, disclosure risk
