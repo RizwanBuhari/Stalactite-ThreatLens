@@ -64,6 +64,9 @@ class App:
         with open(ROOT / "data" / "processed" / "techniques.csv", encoding="utf-8", newline="") as f:
             for r in csv.DictReader(f):
                 self.techniques[r["technique_id"]] = r
+        bundle = ROOT / "data" / "reference" / "mitre" / "enterprise-attack.json"
+        objs = json.loads(bundle.read_text(encoding="utf-8"))["objects"] if bundle.exists() else []
+        self.attack_updated = max((o.get("modified", "") for o in objs), default="")[:10]
         self.granite = Granite()
         meta = ROOT / "models" / "threatlens_final.json"
         self.model_meta = json.loads(meta.read_text()) if meta.exists() else {}
@@ -106,6 +109,7 @@ class App:
         return {"status": "ok", "platform": platform.machine(), "python": platform.python_version(),
                 "cpus": os.cpu_count(), "nnpa": "nnpa" in features.split(),
                 "model": self.model_path.name, "labels": len(self.model.labels_),
+                "catalogue": len(self.techniques), "attack_updated": self.attack_updated,
                 "model_load_seconds": self.load_seconds, "model_meta": self.model_meta,
                 "granite": {"available": self.granite.available, "file": self.granite.path.name,
                             "loaded": self.granite._llm is not None},

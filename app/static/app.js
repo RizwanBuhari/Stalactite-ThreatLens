@@ -67,6 +67,8 @@ function decide(i, decision, extra = {}) {
 }
 const pending = () => state.decisions.filter((d) => d.decision === "pending").length;
 const DECISION_TEXT = { accepted: "✓ Accepted", corrected: "✎ Corrected", rejected: "✕ Rejected", pending: "! Needs review" };
+const MATCH = { high: "Strong match", medium: "Possible match", low: "Low relevance · may not apply" };
+const SCORE_TIP = "Classifier probability for this technique: a ranking signal, not verified accuracy.";
 
 function picker(i) {
   const s = state.analysis.suggestions[i];
@@ -89,7 +91,7 @@ function picker(i) {
 
 async function explain(i, btn) {
   const s = state.analysis.suggestions[i];
-  btn.disabled = true; btn.replaceChildren(h("span", { class: "spinner dark" }), "Granite is reasoning on LinuxONE…");
+  btn.disabled = true; btn.replaceChildren(h("span", { class: "spinner dark" }), "Granite is writing on LinuxONE…");
   try {
     state.explains[i] = await api("/api/explain", { technique_id: s.technique_id, evidence: s.evidence });
   } catch (e) { state.explains[i] = { error: e.message }; }
@@ -99,8 +101,9 @@ function whyBlock(i) {
   const x = state.explains[i];
   if (!x) return null;
   if (x.error) return h("div", { class: "why" }, x.error);
-  return h("div", { class: "why" }, x.text || "(no explanation generated)",
-    h("small", {}, `Draft by IBM Granite (${x.model}) running locally on LinuxONE in ${x.seconds}s${x.load_seconds ? `, model loaded in ${x.load_seconds}s` : ""}. Verify before use.`));
+  return h("div", { class: "why" }, h("div", { class: "why-h" }, "AI explanation · IBM Granite, generated on LinuxONE"),
+    x.text || "(no explanation generated)",
+    h("small", {}, `${x.model} · ${x.seconds}s. Generated text: check it against the evidence above.`));
 }
 
 // ---------- Analyze page ----------
@@ -134,7 +137,12 @@ function renderAnalyze() {
         a && !state.editing ? h("button", { class: "linkbtn", onclick: () => { state.editing = true; render(); } }, "Edit passage") : null),
       h("button", { class: "primary", onclick: (e) => analyze(e.currentTarget) }, "Suggest techniques", h("span", {}, "→")),
       a && Object.keys(a.redactions).length ? h("div", { class: "notice" },
-        "Masked before analysis: ", Object.entries(a.redactions).map(([k, v]) => `${v} ${k}`).join(", "), ". Only the masked text is stored or exported.") : null),
+        "Masked before analysis: ", Object.entries(a.redactions).map(([k, v]) => `${v} ${k}`).join(", "), ". Only the masked text is stored or exported.") : null,
+      a ? h("details", { class: "masked" }, h("summary", {}, "View masked input"),
+        h("p", { class: "desc" }, Object.keys(a.redactions).length
+          ? "The model, the AI explanation and any saved review only ever see this masked version:"
+          : "Nothing sensitive was detected, so the text was analysed as entered:"),
+        h("pre", {}, a.passage_redacted)) : null),
     h("div", { class: "card private" },
       h("div", { class: "ico" }, lockIcon()),
       h("div", {}, h("h3", {}, "Private by design"),
@@ -170,17 +178,19 @@ function suggestionCard(s, i) {
     h("div", {},
       h("div", { class: "tid" }, s.technique_id),
       h("h3", {}, s.name),
-      h("div", { class: "chips" }, s.tactics.map((t) => h("span", { class: "chip" }, t)),
-        h("span", { class: `chip conf-${s.confidence}`, title: "model probability" }, `${s.confidence} · ${s.score.toFixed(2)}`)),
+      h("div", { class: "chips" },
+        h("span", { class: `chip conf-${s.confidence}`, title: SCORE_TIP }, `${MATCH[s.confidence]} · model score ${s.score.toFixed(2)}`),
+        s.tactics.map((t) => h("span", { class: "chip" }, t))),
       h("p", { class: "desc" }, s.summary),
-      h("div", { class: "quote" }, "“", highlight(s.evidence, [{ terms: s.evidence_terms, cls: `r${i + 1}` }]), "”"),
+      h("div", { class: "quote" }, h("span", { class: "quote-h" }, "Evidence from the passage"), "“", highlight(s.evidence, [{ terms: s.evidence_terms, cls: `r${i + 1}` }]), "”"),
       h("div", { class: "actions" },
         h("span", { class: `state ${d.decision}` }, stateLabel),
-        h("button", { class: "btn", onclick: (e) => explain(i, e.currentTarget), disabled: !state.health?.granite?.available }, "Why?"),
+        h("button", { class: "btn", onclick: (e) => explain(i, e.currentTarget), disabled: !state.health?.granite?.available, title: "Ask IBM Granite (runs on LinuxONE) to explain this match" }, "AI explanation"),
         decided
-          ? h("button", { class: "linkbtn", onclick: undo, title: "Back to undecided" }, "Undo")
-          : [h("button", { class: "btn go", onclick: () => decide(i, "accepted", { corrected_to: "", corrected_name: "" }) }, "✓ Accept"),
-             h("button", { class: "btn", onclick: () => { state.picker = state.picker === i ? null : i; render(); } }, "✎ Correct")]),
+          ? h("button", { class: "btn", onclick: undo, title: "Back to undecided" }, "Undo")
+          : [h("button", { class: "btn", onclick: () => decide(i, "rejected", { corrected_to: "", corrected_name: "" }) }, "✕ Reject"),
+             h("button", { class: "btn", onclick: () => { state.picker = state.picker === i ? null : i; render(); } }, "✎ Correct"),
+             h("button", { class: "btn go", onclick: () => decide(i, "accepted", { corrected_to: "", corrected_name: "" }) }, "✓ Accept")]),
       state.picker === i ? picker(i) : null,
       whyBlock(i)));
 }
@@ -222,13 +232,19 @@ function renderQueue() {
     h("p", { class: "desc" }, s.summary),
     h("div", { class: "label" }, "Evidence from report"),
     h("div", { class: "quote" }, "“", highlight(s.evidence, [{ terms: s.evidence_terms, cls: `r${i + 1}` }]), "”"),
-    whyBlock(i) || h("button", { class: "btn", onclick: (e) => explain(i, e.currentTarget), disabled: !state.health?.granite?.available }, "Explain with IBM Granite"),
+    whyBlock(i) || h("button", { class: "btn", onclick: (e) => explain(i, e.currentTarget), disabled: !state.health?.granite?.available }, "AI explanation (IBM Granite)"),
     h("div", { class: "label" }, "Analyst note"),
     h("textarea", { placeholder: "Why you accepted or changed this mapping…", oninput: (e) => { state.decisions[i].note = e.target.value; state.savedId = null; } }, d.note || ""),
+    d.decision !== "pending" ? h("div", { class: `decided ${d.decision}` },
+      d.decision === "corrected" ? `✎ Corrected to ${d.corrected_to} · ${d.corrected_name}` : DECISION_TEXT[d.decision],
+      h("button", { class: "linkbtn", onclick: () => decide(i, "pending", { corrected_to: "", corrected_name: "" }) }, "Undo")) : null,
     h("div", { class: "btnrow" },
-      h("button", { class: "btn go", onclick: () => decide(i, "accepted", { corrected_to: "", corrected_name: "" }) }, "Accept suggestion"),
-      h("button", { class: "btn ghost", onclick: () => { state.picker = state.picker === i ? null : i; render(); } }, "Change technique"),
-      h("button", { class: "btn", onclick: () => decide(i, "rejected", { corrected_to: "", corrected_name: "" }) }, "Reject")),
+      h("button", { class: "btn go", disabled: d.decision === "accepted", onclick: () => decide(i, "accepted", { corrected_to: "", corrected_name: "" }) },
+        d.decision === "accepted" ? "Accepted ✓" : "Accept suggestion"),
+      h("button", { class: "btn ghost", onclick: () => { state.picker = state.picker === i ? null : i; render(); } },
+        d.decision === "corrected" ? "Change again" : "Change technique"),
+      h("button", { class: "btn", disabled: d.decision === "rejected", onclick: () => decide(i, "rejected", { corrected_to: "", corrected_name: "" }) },
+        d.decision === "rejected" ? "Rejected ✕" : "Reject")),
     state.picker === i ? picker(i) : null);
   const fmt = h("select", {}, h("option", { value: "csv" }, "CSV"), h("option", { value: "json" }, "JSON"));
   const left = pending();
@@ -257,15 +273,19 @@ async function renderExports() {
   view.replaceChildren(h("div", { class: "empty" }, "Loading saved reviews…"));
   const reviews = await api("/api/reviews").catch(() => []);
   const count = (r, k) => r.decisions.filter((d) => d.decision === k).length;
+  const dl = (fmt, cls) => reviews.length
+    ? h("a", { class: `btn ${cls}`, href: `/api/export?format=${fmt}` }, `Download ${fmt.toUpperCase()}`)
+    : h("button", { class: `btn ${cls}`, disabled: true, title: "Save a review first" }, `Download ${fmt.toUpperCase()}`);
   view.replaceChildren(
     h("div", { class: "hero" }, h("div", {}, h("h1", {}, "Reviewed exports."), h("p", { class: "lede" }, "Every saved review, stored on LinuxONE with sensitive values masked.")),
-      h("div", { class: "btnrow", style: "margin:0" }, h("a", { class: "btn go", href: "/api/export?format=csv" }, "Download CSV"), h("a", { class: "btn", href: "/api/export?format=json" }, "Download JSON"))),
+      h("div", { class: "btnrow", style: "margin:0" }, dl("csv", "go"), dl("json", ""))),
     reviews.length ? h("div", { class: "card" }, h("table", {},
       h("thead", {}, h("tr", {}, ["Saved (UTC)", "Analyst", "Accepted", "Corrected", "Rejected", "Passage (masked)"].map((t) => h("th", {}, t)))),
       h("tbody", {}, reviews.map((r) => h("tr", {}, h("td", {}, r.saved_utc), h("td", {}, r.analyst), h("td", {}, count(r, "accepted")),
         h("td", {}, count(r, "corrected")), h("td", {}, count(r, "rejected")),
         h("td", {}, r.passage_redacted.length > 140 ? r.passage_redacted.slice(0, 140) + "…" : r.passage_redacted))))))
-      : h("div", { class: "empty" }, "No reviews saved yet. Review a passage and choose ", h("b", {}, "Save review"), "."));
+      : h("div", { class: "empty" }, h("p", { style: "margin:0 0 16px" }, "No reviews saved yet. Analyse a passage, decide on each suggestion in the Review queue, then choose ", h("b", {}, "Save review"), "."),
+          h("a", { class: "btn go", href: "#/analyze" }, "Analyze a passage")));
 }
 
 // ---------- Model evaluation ----------
@@ -283,37 +303,37 @@ async function renderEvaluation() {
       h("td", {}, pct(x["hit@5"])), h("td", {}, x.micro_f1.toFixed(3)), h("td", {}, x.macro_f1.toFixed(3))));
   }
   const corpus = ev.corpus || {};
+  const T = R.test.all.technique, X = R.external_test.all.technique;
   view.replaceChildren(
     h("div", { class: "hero" }, h("div", {}, h("h1", {}, "Measured, not promised."),
-      h("p", { class: "lede" }, "Trained and tested on IBM LinuxONE. Tuned on validation only; test and CISA scored once.")), h("span", { class: "tag" }, `Built ${m.built_utc} UTC`)),
+      h("p", { class: "lede" }, "Trained and tested on IBM LinuxONE. Tuned on validation only; test and CISA scored once.")), h("span", { class: "tag" }, `Evaluated ${m.built_utc} UTC`)),
     h("div", { class: "tiles" },
-      tile(pct(R.test.all.technique["hit@3"]), "Test Hit@3", `${pct(R.test.clean.technique["hit@3"])} on near-duplicate-free rows`),
-      tile(pct(R.external_test.all.technique["hit@3"]), "CISA advisories Hit@3", `${pct(R.external_test.all.parent["hit@3"])} at parent-technique level`),
-      tile(`${m.latency_ms_per_sentence} ms`, "per sentence on LinuxONE", `${Math.round(m.batch_sentences_per_second)} sentences/s in batch`),
-      tile(m.labels_in_model, "techniques learned", `${m.features.toLocaleString()} features · fit ${m.fit_seconds}s`)),
+      tile(pct(T["hit@3"]), "Top-3 hit rate (test)", `${pct(R.test.clean.technique["hit@3"])} on near-duplicate-free rows`),
+      tile(T.micro_f1.toFixed(2), "Micro-F1 (test)", `threshold ${m.threshold}, tuned on validation`),
+      tile(pct(X["hit@3"]), "Top-3 on CISA advisories", `never trained on · ${pct(R.external_test.all.parent["hit@3"])} at parent level`),
+      tile(`${m.latency_ms_per_sentence} ms`, "Model latency per sentence", "TF-IDF + scoring on LinuxONE CPU; excludes network and browser")),
     h("div", { class: "stack" },
-      h("div", { class: "card" }, h("h2", {}, "Results by split"),
+      h("div", { class: "card" }, h("h2", {}, "Model card"),
+        kv(
+          "Model", `${m.model} (C=${m.C})`,
+          "Evaluated model", `${m.labels_in_model} techniques learned from train only (techniques with ≥ ${m.min_support} examples)`,
+          "Served model", hl?.model_meta?.trained_on ? `${hl.labels} techniques, retrained on ${hl.model_meta.trained_on} (${hl.model_meta.rows.toLocaleString()} rows) with the same settings` : "–",
+          "Label catalogue", hl ? `MITRE ATT&CK Enterprise STIX bundle (updated ${hl.attack_updated}), ${hl.catalogue} active techniques` : "–",
+          "Generative step", hl?.granite?.available ? `IBM Granite ${hl.granite.file} via llama.cpp ${hl.libraries.llama_cpp_python}: optional explanation, not used for scoring` : "not available",
+          "Platform", hl ? `IBM LinuxONE ${hl.platform}, ${hl.cpus} CPUs; NNPA on-chip AI ${hl.nnpa ? "available on this server (the classifier itself runs on CPU)" : "not listed"}` : m.platform,
+          "Corpus", corpus.unique_rows ? `${corpus.unique_rows.toLocaleString()} sentences; ${corpus.distinct_techniques_per_split?.train} techniques in train` : "–")),
+      h("details", { class: "card more" }, h("summary", {}, "View detailed evaluation"),
         h("p", { class: "desc" }, "Hit@k: a correct technique appears in the top k suggestions. Clean: held-out rows sharing under half their 8-word phrases with training text. Parent: sub-techniques counted at their parent technique."),
-        h("table", {}, h("thead", {}, h("tr", {}, ["Split", "Subset", "Level", "Rows", "Hit@1", "Hit@3", "Hit@5", "Micro-F1", "Macro-F1"].map((t) => h("th", {}, t)))), h("tbody", {}, metricRows))),
-      h("div", { class: "grid2" },
-        h("div", { class: "card" }, h("h2", {}, "Test split by source"),
-          h("table", {}, h("thead", {}, h("tr", {}, ["Source", "Rows", "Hit@3", "Hit@3 parent"].map((t) => h("th", {}, t)))),
-            h("tbody", {}, Object.entries(R.test_by_source).filter(([, b]) => b.technique.rows >= 20).map(([src, b]) =>
-              h("tr", {}, h("td", {}, src), h("td", {}, b.technique.rows), h("td", {}, pct(b.technique["hit@3"])), h("td", {}, pct(b.parent["hit@3"]))))))),
-        h("div", { class: "card" }, h("h2", {}, "Platform"),
-          h("div", { class: "kv" },
-            "Architecture", hl ? `${hl.platform} (IBM LinuxONE)` : m.platform,
-            "CPUs", hl?.cpus ?? "–",
-            "On-chip AI accelerator", hl ? (hl.nnpa ? "NNPA present" : "not listed") : "–",
-            "Model", `${m.model}, C=${m.C}, threshold ${m.threshold}`,
-            "Served model", hl?.model_meta?.trained_on ? `${hl.model} (trained on ${hl.model_meta.trained_on}, ${hl.model_meta.rows} rows)` : hl?.model ?? "–",
-            "Generative step", hl?.granite?.available ? `IBM Granite ${hl.granite.file} via llama.cpp ${hl.libraries.llama_cpp_python}` : "not available",
-            "scikit-learn", hl?.libraries?.["scikit-learn"] ?? "–",
-            "Corpus", corpus.unique_rows ? `${corpus.unique_rows.toLocaleString()} sentences, ${corpus.distinct_techniques_per_split?.train} techniques in train` : "–"))),
+        h("table", {}, h("thead", {}, h("tr", {}, ["Split", "Subset", "Level", "Rows", "Hit@1", "Hit@3", "Hit@5", "Micro-F1", "Macro-F1"].map((t) => h("th", {}, t)))), h("tbody", {}, metricRows)),
+        h("h2", { style: "margin-top:24px" }, "Test split by source"),
+        h("table", {}, h("thead", {}, h("tr", {}, ["Source", "Rows", "Hit@3", "Hit@3 parent"].map((t) => h("th", {}, t)))),
+          h("tbody", {}, Object.entries(R.test_by_source).filter(([, b]) => b.technique.rows >= 20).map(([src, b]) =>
+            h("tr", {}, h("td", {}, src), h("td", {}, b.technique.rows), h("td", {}, pct(b.technique["hit@3"])), h("td", {}, pct(b.parent["hit@3"]))))))),
       h("div", { class: "card" }, h("h2", {}, "Examples from CISA advisories (never seen in training)"),
         ev.examples.map((x) => h("div", { class: "ex" }, h("span", { class: x.hit ? "ok" : "no" }, x.hit ? "✓ correct in top 3 " : "✕ missed "), x.text,
           h("div", { class: "desc", style: "margin:4px 0 0" }, `Reference: ${x.gold} (${x.gold_names}) · Model top 3: ${x.top3.map((t, k) => `${t} ${x.names[k]}`).join(" | ")}`))))));
 }
+const kv = (...pairs) => h("div", { class: "kv" }, pairs.map((x) => h("div", {}, x)));
 const tile = (big, label, small) => h("div", { class: "card tile" }, h("b", {}, big), h("span", {}, label), h("small", {}, small));
 
 // ---------- Icons (inline SVG, no external assets) ----------
@@ -358,7 +378,8 @@ window.addEventListener("hashchange", () => { state.picker = null; render(); });
     document.getElementById("status-dot").classList.add("ok");
     document.getElementById("status-text").textContent = `LinuxONE · ${state.health.platform} · Local`;
     document.getElementById("foot-platform").textContent = `IBM LinuxONE · ${state.health.platform}`;
-    document.getElementById("foot-model").textContent = `${state.health.labels} techniques · ${state.health.nnpa ? "NNPA on-chip AI" : "local model"}`;
+    document.getElementById("foot-model").textContent =
+      `Model covers ${state.health.labels} of ${state.health.catalogue} ATT&CK techniques${state.health.nnpa ? " · NNPA available" : ""}`;
     state.samples = await api("/api/samples");
   } catch {
     document.getElementById("status-dot").classList.remove("ok");
