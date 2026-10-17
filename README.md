@@ -27,7 +27,7 @@ cybersecurity students learning ATT&CK.
 ## What ThreatLens does
 
 1. **Paste a passage** from a threat report.
-2. **Sensitive values are masked first**: IP addresses, domains, URLs, emails, file hashes and user names are replaced with `[IP]`, `[DOMAIN]` and so on. Only masked text is ever stored or exported.
+2. **Sensitive values are masked first**: IP addresses, domains, URLs, emails, file hashes and usernames in file paths are replaced with `[IP]`, `[DOMAIN]` and so on. Only masked text is ever stored or exported.
 3. **Three ranked ATT&CK techniques** are suggested in about 60 ms, each with the sentence that supports it and the words that drove the score. These come from the model's own weights, not from generated text.
 4. **IBM Granite explains** a suggestion on request, running locally on LinuxONE through llama.cpp.
 5. **The analyst decides**: accept, change technique (the next-best suggestions are offered first), or reject, and adds a note.
@@ -47,10 +47,10 @@ Everything runs in the `notebook` container on our IBM LinuxONE Community Cloud 
 | Step | On LinuxONE |
 |---|---|
 | Data pipeline | `scripts/build_corpus.py` parses 4 datasets and 82 CISA PDF advisories into a 24,872-sentence corpus in about 50 s |
-| Training | `scripts/train_baseline.py` trains 3 candidate models in parallel on all 3 CPUs; the final model trains in 147 s |
+| Training | `scripts/train_baseline.py` tries 3 candidate settings in turn, each fitted in parallel on all 3 CPUs; the final model trains in 147 s |
 | Predictive AI | TF-IDF + one-vs-rest logistic regression (scikit-learn), 415 techniques, ~60 ms per passage |
 | Generative AI | IBM Granite 4.0 H 350M via `llama-cpp-python`, built with the IBM zDNN backend (the NNPA on-chip AI accelerator is present on this server) |
-| Security | The app listens on a **Unix socket inside the container**, not a network port. Users reach it only through an authenticated, encrypted SSH tunnel. No report text leaves the server. |
+| Security | The app listens on a **Unix socket inside the container**, so it opens no additional TCP listener. Users reach it only through an authenticated, encrypted SSH tunnel. No report content is sent to external AI services. |
 | Evidence | `notebooks/ThreatLens_LinuxONE_demo.ipynb` runs the whole flow on s390x with saved outputs |
 
 ![ThreatLens architecture on IBM LinuxONE](submission/ThreatLens_Architecture.png)
@@ -84,13 +84,13 @@ The model was tuned on the validation split only. Test and the CISA external set
 | Evaluation set | Rows | Hit@1 | **Hit@3** | Hit@5 | Hit@3 (parent technique) |
 |---|---|---|---|---|---|
 | Test (same sources as training) | 3,710 | 62.2% | **80.9%** | 85.8% | 86.6% |
-| Test, near-duplicate-free rows | 3,028 | 61.6% | **79.7%** | 85.1% | 85.3% |
+| Test, low-overlap subset | 3,028 | 61.6% | **79.7%** | 85.1% | 85.3% |
 | CISA advisories (new source, never trained on) | 2,407 | 41.5% | **59.2%** | 66.3% | 67.5% |
-| CISA, near-duplicate-free rows | 2,329 | 40.6% | **58.4%** | 65.6% | 66.8% |
+| CISA, low-overlap subset | 2,329 | 40.6% | **58.4%** | 65.6% | 66.8% |
 
-- Removing near-duplicates barely changes the scores, so the results are not inflated by memorisation.
+- Performance changes little on the low-overlap subset. The filter reduces near-duplicates; it cannot rule out all memorisation or leakage.
 - CISA advisories are harder: a different writing style, and 7.5% of their rows use techniques that never appear in training. This is why ThreatLens offers a ranked shortlist for a human to confirm rather than tagging automatically.
-- Speed: 40 ms per sentence, about 2,265 sentences per second in batch, on 3 LinuxONE CPUs.
+- Speed (baseline model, train only): 40 ms per sentence, about 2,265 sentences per second in batch, on 3 LinuxONE CPUs. The served model (train + val, 415 techniques) answers the demo passage in about 50–70 ms.
 - Test Hit@3 by source: TRAM 89.9%, MITRE procedures 88.3%, Expert 76.3%, AnnoCTR 67.5% (77.8% at parent level, because AnnoCTR labels only parent techniques).
 
 Full tables: `outputs/metrics/baseline_report.md` on the server, and the **Model evaluation** page in the app.
