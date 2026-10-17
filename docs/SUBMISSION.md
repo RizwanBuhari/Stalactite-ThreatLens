@@ -37,7 +37,7 @@ Full list: https://github.com/RizwanBuhari/Stalactite-ThreatLens#open-source-res
 
 ## Any other document (architecture diagram)
 ```
-https://github.com/RizwanBuhari/Stalactite-ThreatLens#how-it-uses-ibm-z--linuxone
+https://github.com/RizwanBuhari/Stalactite-ThreatLens/blob/main/submission/ThreatLens_Architecture.pdf
 ```
 
 ## Still to provide

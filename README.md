@@ -4,6 +4,12 @@
 
 Team **Stalactite** · IBM Z Datathon 2026 · Theme 2: **AI Secured: Innovation Without Exposure** (Powerful AI. Protected Data.)
 
+**Team Stalactite, Manipal Academy of Higher Education, Dubai Campus:** Muhammad Rizwan, Shaurav Divyesh Vora,
+Shabnam Haseena, Amardev Anishkumar, Disha Gowda, Rijun Jude Kaniyampurath
+
+**Submission pack:** [pitch deck (PDF)](submission/Stalactite_IBM%20Z%20Datathon%202026%20Project.pdf) ·
+[architecture diagram (PDF)](submission/ThreatLens_Architecture.pdf) · [all submission files](submission/)
+
 ![ThreatLens analysing a passage on LinuxONE](docs/screenshots/analyze.png)
 
 ## The problem
@@ -46,6 +52,10 @@ Everything runs in the `notebook` container on our IBM LinuxONE Community Cloud 
 | Generative AI | IBM Granite 4.0 H 350M via `llama-cpp-python`, built with the IBM zDNN backend (the NNPA on-chip AI accelerator is present on this server) |
 | Security | The app listens on a **Unix socket inside the container**, not a network port. Users reach it only through an authenticated, encrypted SSH tunnel. No report text leaves the server. |
 | Evidence | `notebooks/ThreatLens_LinuxONE_demo.ipynb` runs the whole flow on s390x with saved outputs |
+
+![ThreatLens architecture on IBM LinuxONE](submission/ThreatLens_Architecture.png)
+
+Simplified view:
 
 ```mermaid
 flowchart LR

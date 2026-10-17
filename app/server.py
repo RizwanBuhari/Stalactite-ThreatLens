@@ -74,8 +74,9 @@ class App:
         REVIEWS.mkdir(parents=True, exist_ok=True)
 
     def _samples(self):
-        demo = [{"title": "PowerShell + credential dumping",
-                 "text": "The attackers used PowerShell to download additional tools, then dumped credentials from LSASS memory."}]
+        demo = [{"title": "Demo: PowerShell, credential dumping, phishing (with values to mask)",
+                 "text": "The attackers used PowerShell to download additional tools from 185.141.61[.]246, then dumped "
+                         "credentials from LSASS memory. They emailed staff at evil-corp.com with malicious Word attachments."}]
         path = ROOT / "data" / "processed" / "external_test.csv"
         with open(path, encoding="utf-8", newline="") as f:
             rows = [r for r in csv.DictReader(f)

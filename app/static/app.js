@@ -67,8 +67,6 @@ function decide(i, decision, extra = {}) {
 }
 const pending = () => state.decisions.filter((d) => d.decision === "pending").length;
 const DECISION_TEXT = { accepted: "✓ Accepted", corrected: "✎ Corrected", rejected: "✕ Rejected", pending: "! Needs review" };
-const MATCH = { high: "Strong match", medium: "Possible match", low: "Low relevance · may not apply" };
-const SCORE_TIP = "Classifier probability for this technique: a ranking signal, not verified accuracy.";
 
 function picker(i) {
   const s = state.analysis.suggestions[i];
@@ -182,9 +180,7 @@ function suggestionCard(s, i) {
     h("div", {},
       h("div", { class: "tid" }, s.technique_id),
       h("h3", {}, s.name),
-      h("div", { class: "chips" },
-        h("span", { class: `chip conf-${s.confidence}`, title: SCORE_TIP }, `${MATCH[s.confidence]} · model score ${s.score.toFixed(2)}`),
-        s.tactics.map((t) => h("span", { class: "chip" }, t))),
+      h("div", { class: "chips" }, s.tactics.map((t) => h("span", { class: "chip" }, t))),
       h("p", { class: "desc" }, s.summary),
       h("div", { class: "quote" }, h("span", { class: "quote-h" }, "Evidence from the passage"), "“", highlight(s.evidence, [{ terms: s.evidence_terms, cls: `r${i + 1}` }]), "”"),
       h("div", { class: "actions" },
@@ -391,9 +387,15 @@ window.addEventListener("hashchange", () => { state.picker = null; render(); });
   }
   render();
   // Deep link for demos: #/analyze?sample=1 (or #/queue?sample=1) fills and analyses that sample.
-  const n = Number(new URLSearchParams(location.hash.split("?")[1] || "").get("sample"));
+  const params = new URLSearchParams(location.hash.split("?")[1] || "");
+  const n = Number(params.get("sample"));
   if (n && state.samples[n - 1]) {
     state.text = state.samples[n - 1].text;
     await analyze(document.querySelector(".primary"));
+    // &explain=1 also asks Granite about the first suggestion (for demos and screenshots).
+    if (params.get("explain") && state.analysis) {
+      const btn = [...document.querySelectorAll(".btn")].find((b) => b.textContent.startsWith("AI explanation"));
+      if (btn) await explain(0, btn);
+    }
   }
 })();
