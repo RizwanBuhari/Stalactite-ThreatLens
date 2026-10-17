@@ -1,0 +1,355 @@
+{
+  "built_utc": "2026-10-17 12:47",
+  "platform": "s390x / Python 3.12.15",
+  "model": "TF-IDF (word 1-2 + char 3-5 n-grams) + one-vs-rest logistic regression",
+  "C": 16.0,
+  "threshold": 0.3,
+  "min_support": 3,
+  "labels_in_model": 397,
+  "features": 111917,
+  "fit_seconds": 103.9,
+  "tuning": [
+    {
+      "C": 1.0,
+      "val_hit@3": 0.7572,
+      "fit_seconds": 65.0
+    },
+    {
+      "C": 4.0,
+      "val_hit@3": 0.795,
+      "fit_seconds": 84.7
+    },
+    {
+      "C": 16.0,
+      "val_hit@3": 0.8026,
+      "fit_seconds": 103.9
+    }
+  ],
+  "latency_ms_per_sentence": 40.3,
+  "batch_sentences_per_second": 2265.3,
+  "results": {
+    "val": {
+      "all": {
+        "technique": {
+          "rows": 2883,
+          "hit@1": 0.6053,
+          "hit@3": 0.8026,
+          "hit@5": 0.8592,
+          "recall@3": 0.7829,
+          "micro_f1": 0.5808,
+          "macro_f1": 0.3576,
+          "coverage": 0.9837
+        },
+        "parent": {
+          "rows": 2883,
+          "hit@1": 0.701,
+          "hit@3": 0.8599,
+          "hit@5": 0.9039,
+          "recall@3": 0.8433,
+          "micro_f1": 0.6739,
+          "macro_f1": 0.4739
+        }
+      },
+      "clean": {
+        "technique": {
+          "rows": 2306,
+          "hit@1": 0.6041,
+          "hit@3": 0.8014,
+          "hit@5": 0.8556,
+          "recall@3": 0.7806,
+          "micro_f1": 0.5784,
+          "macro_f1": 0.3454,
+          "coverage": 0.9835
+        },
+        "parent": {
+          "rows": 2306,
+          "hit@1": 0.6878,
+          "hit@3": 0.8539,
+          "hit@5": 0.9003,
+          "recall@3": 0.8358,
+          "micro_f1": 0.659,
+          "macro_f1": 0.4331
+        }
+      }
+    },
+    "test": {
+      "all": {
+        "technique": {
+          "rows": 3710,
+          "hit@1": 0.6224,
+          "hit@3": 0.8089,
+          "hit@5": 0.8582,
+          "recall@3": 0.7764,
+          "micro_f1": 0.5733,
+          "macro_f1": 0.3382,
+          "coverage": 0.9857
+        },
+        "parent": {
+          "rows": 3710,
+          "hit@1": 0.7073,
+          "hit@3": 0.8655,
+          "hit@5": 0.9062,
+          "recall@3": 0.8376,
+          "micro_f1": 0.6577,
+          "macro_f1": 0.4746
+        }
+      },
+      "clean": {
+        "technique": {
+          "rows": 3028,
+          "hit@1": 0.6156,
+          "hit@3": 0.7972,
+          "hit@5": 0.8507,
+          "recall@3": 0.7595,
+          "micro_f1": 0.5594,
+          "macro_f1": 0.3201,
+          "coverage": 0.9865
+        },
+        "parent": {
+          "rows": 3028,
+          "hit@1": 0.6879,
+          "hit@3": 0.8534,
+          "hit@5": 0.897,
+          "recall@3": 0.8209,
+          "micro_f1": 0.6334,
+          "macro_f1": 0.4256
+        }
+      }
+    },
+    "test_by_source": {
+      "annoctr": {
+        "technique": {
+          "rows": 578,
+          "hit@1": 0.4913,
+          "hit@3": 0.6747,
+          "hit@5": 0.7612,
+          "recall@3": 0.6302,
+          "micro_f1": 0.4513,
+          "macro_f1": 0.2293,
+          "coverage": 0.9862
+        },
+        "parent": {
+          "rows": 578,
+          "hit@1": 0.5952,
+          "hit@3": 0.7785,
+          "hit@5": 0.8478,
+          "recall@3": 0.7372,
+          "micro_f1": 0.5398,
+          "macro_f1": 0.2728
+        }
+      },
+      "derived_procedure": {
+        "technique": {
+          "rows": 515,
+          "hit@1": 0.3359,
+          "hit@3": 0.5922,
+          "hit@5": 0.6816,
+          "recall@3": 0.5553,
+          "micro_f1": 0.3078,
+          "macro_f1": 0.1931,
+          "coverage": 0.9903
+        },
+        "parent": {
+          "rows": 515,
+          "hit@1": 0.3981,
+          "hit@3": 0.6699,
+          "hit@5": 0.7631,
+          "recall@3": 0.635,
+          "micro_f1": 0.3678,
+          "macro_f1": 0.2375
+        }
+      },
+      "derived_procedure|expert": {
+        "technique": {
+          "rows": 4,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "recall@3": 0.6667,
+          "micro_f1": 0.5714,
+          "macro_f1": 0.375,
+          "coverage": 1.0
+        },
+        "parent": {
+          "rows": 4,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "recall@3": 0.7917,
+          "micro_f1": 0.5714,
+          "macro_f1": 0.375
+        }
+      },
+      "derived_procedure|tram": {
+        "technique": {
+          "rows": 3,
+          "hit@1": 0.6667,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "recall@3": 0.8333,
+          "micro_f1": 0.4444,
+          "macro_f1": 0.3333,
+          "coverage": 1.0
+        },
+        "parent": {
+          "rows": 3,
+          "hit@1": 0.6667,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "recall@3": 0.8333,
+          "micro_f1": 0.5,
+          "macro_f1": 0.4
+        }
+      },
+      "expert": {
+        "technique": {
+          "rows": 152,
+          "hit@1": 0.6053,
+          "hit@3": 0.7632,
+          "hit@5": 0.8355,
+          "recall@3": 0.4193,
+          "micro_f1": 0.287,
+          "macro_f1": 0.1528,
+          "coverage": 1.0
+        },
+        "parent": {
+          "rows": 152,
+          "hit@1": 0.6316,
+          "hit@3": 0.7895,
+          "hit@5": 0.8684,
+          "recall@3": 0.5043,
+          "micro_f1": 0.3455,
+          "macro_f1": 0.2033
+        }
+      },
+      "expert|procedure": {
+        "technique": {
+          "rows": 1,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "recall@3": 0.5,
+          "micro_f1": 0.6667,
+          "macro_f1": 0.5,
+          "coverage": 1.0
+        },
+        "parent": {
+          "rows": 1,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "recall@3": 0.5,
+          "micro_f1": 0.6667,
+          "macro_f1": 0.5
+        }
+      },
+      "procedure": {
+        "technique": {
+          "rows": 1751,
+          "hit@1": 0.7213,
+          "hit@3": 0.8835,
+          "hit@5": 0.9126,
+          "recall@3": 0.8821,
+          "micro_f1": 0.7171,
+          "macro_f1": 0.4816,
+          "coverage": 0.9812
+        },
+        "parent": {
+          "rows": 1751,
+          "hit@1": 0.8035,
+          "hit@3": 0.9263,
+          "hit@5": 0.9457,
+          "recall@3": 0.9255,
+          "micro_f1": 0.8016,
+          "macro_f1": 0.638
+        }
+      },
+      "procedure|tram": {
+        "technique": {
+          "rows": 6,
+          "hit@1": 0.8333,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "recall@3": 1.0,
+          "micro_f1": 0.9231,
+          "macro_f1": 1.0,
+          "coverage": 1.0
+        },
+        "parent": {
+          "rows": 6,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "recall@3": 1.0,
+          "micro_f1": 1.0,
+          "macro_f1": 1.0
+        }
+      },
+      "tram": {
+        "technique": {
+          "rows": 700,
+          "hit@1": 0.6929,
+          "hit@3": 0.8986,
+          "hit@5": 0.9343,
+          "recall@3": 0.872,
+          "micro_f1": 0.6607,
+          "macro_f1": 0.6012,
+          "coverage": 0.99
+        },
+        "parent": {
+          "rows": 700,
+          "hit@1": 0.7986,
+          "hit@3": 0.9429,
+          "hit@5": 0.9671,
+          "recall@3": 0.9213,
+          "micro_f1": 0.7542,
+          "macro_f1": 0.7068
+        }
+      }
+    },
+    "external_test": {
+      "all": {
+        "technique": {
+          "rows": 2407,
+          "hit@1": 0.4155,
+          "hit@3": 0.5916,
+          "hit@5": 0.6631,
+          "recall@3": 0.5624,
+          "micro_f1": 0.3903,
+          "macro_f1": 0.2173,
+          "coverage": 0.9248
+        },
+        "parent": {
+          "rows": 2407,
+          "hit@1": 0.4931,
+          "hit@3": 0.6751,
+          "hit@5": 0.7474,
+          "recall@3": 0.6488,
+          "micro_f1": 0.4631,
+          "macro_f1": 0.2867
+        }
+      },
+      "clean": {
+        "technique": {
+          "rows": 2329,
+          "hit@1": 0.4062,
+          "hit@3": 0.5839,
+          "hit@5": 0.6565,
+          "recall@3": 0.5538,
+          "micro_f1": 0.3815,
+          "macro_f1": 0.2094,
+          "coverage": 0.9227
+        },
+        "parent": {
+          "rows": 2329,
+          "hit@1": 0.4835,
+          "hit@3": 0.6685,
+          "hit@5": 0.7419,
+          "recall@3": 0.6414,
+          "micro_f1": 0.4533,
+          "macro_f1": 0.2763
+        }
+      }
+    }
+  }
+}

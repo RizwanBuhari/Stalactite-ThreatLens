@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ThreatLens</title>
+  <link rel="icon" href="/design/logo.png">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><img src="/design/logo.png" alt=""><span>ThreatLens</span></div>
+    <div class="team">TEAM STALACTITE</div>
+    <nav class="nav">
+      <a href="#/analyze" data-page="analyze"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg>Analyze report</a>
+      <a href="#/queue" data-page="queue"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>Review queue</a>
+      <a href="#/exports" data-page="exports"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M12 11v6M9 14l3 3 3-3"/></svg>Reviewed exports</a>
+      <a href="#/evaluation" data-page="evaluation"><svg viewBox="0 0 24 24"><path d="M4 20h16M7 16V10M12 16V5M17 16v-4"/></svg>Model evaluation</a>
+    </nav>
+    <div class="foot"><b id="foot-platform">Connecting…</b><span id="foot-model">LinuxONE workspace</span></div>
+  </aside>
+  <main>
+    <header class="topbar">
+      <div class="crumb">Workspace / <b id="crumb">Analyze report</b></div>
+      <div class="top-right">
+        <span class="pill" id="status-pill"><span class="dot" id="status-dot"></span><span id="status-text">LinuxONE · checking</span></span>
+        <button class="analyst" id="analyst-btn" title="Change analyst name"><span class="avatar" id="avatar">A</span><span id="analyst-name">Analyst</span></button>
+      </div>
+    </header>
+    <div id="view" class="page"></div>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

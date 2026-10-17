@@ -1,0 +1,25 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+data/raw/*
+!data/raw/cisa/
+data/raw/cisa/*
+!data/raw/cisa/manifest.csv
+data/processed/*
+data/reference/*
+!data/reference/.gitkeep
+!data/**/.gitkeep
+outputs/*
+!outputs/.gitkeep
+!outputs/metrics/
+outputs/metrics/*
+!outputs/metrics/baseline_report.md
+!outputs/metrics/baseline_metrics.json
+*.pem
+*.key
+models/*
+!models/.gitkeep
+run/
+# pre-event setup helpers (written before the datathon window; not part of the submission)
+scripts/setup_check.py
+tools/push_to_server.sh
