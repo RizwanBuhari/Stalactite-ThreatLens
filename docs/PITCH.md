@@ -19,16 +19,24 @@ Judging (10 points each): **community value and theme fit**, **novelty**, **tech
 
 **Recording tips:** record the app at 1536×960 or larger. Use `#/analyze?sample=1` for a guaranteed clean first result (it includes an IP and a domain to show masking). Keep the video under 3:00, because the time limit is part of the score.
 
-## Deck outline (8 slides)
+## Deck (14 slides: `submission/Stalactite_IBM Z Datathon 2026 Project.pdf`)
 
-1. **Title.** ThreatLens: Clarity without exposure · Team Stalactite · Theme 2: AI Secured: Innovation Without Exposure.
-2. **Problem and who benefits.** Manual ATT&CK mapping is slow and needs experts, and the reports are sensitive. It helps SOC analysts, incident responders, under-resourced public bodies, hospitals and schools, and students.
-3. **Solution.** Paste → mask → top-3 techniques with evidence → Granite explanation → human review → export (use `docs/screenshots/analyze.png`).
-4. **Data.** 4 sources, 24,872 sentences, 497 techniques in training; leakage removal; CISA held out as a real-world test.
-5. **Architecture on LinuxONE.** The mermaid diagram from the README: container, Unix socket plus SSH, predictive + generative AI, NNPA/zDNN.
-6. **Results.** The Hit@3 table (80.9% / 79.7% clean / 59.2% CISA), 40 ms per sentence, plus one real hit and one real miss from the Model evaluation page.
-7. **Why it matters / AI for Good.** Defenders get faster, consistent ATT&CK mapping without handing sensitive incident data to third parties. Every decision is documented and reviewable.
-8. **Honesty and next steps.** Prior ICS paper disclosed; code written during the event; AI-assistant use disclosed. Next: transformer encoder on NNPA, more CISA training data, and full-report upload.
+1. Cover: ThreatLens, MAHE Dubai, Team Stalactite
+2. Problem: specialist work, consistency, disclosure risk
+3. Who benefits: evidence-backed mapping assistance
+4. Solution: paste, mask, rank, review, optionally explain
+5. Close-up: one ranked technique with visible evidence and a Granite explanation
+6. Close-up: an analyst refines a mapping and saves the review
+7. Data: 24,872 sentences; CISA kept for external evaluation
+8. Architecture: one server, one container, no external AI calls
+9. LinuxONE: built, trained and served on s390x, with platform evidence
+10. Results: baseline evaluation; evaluated vs served model
+11. Privacy, honesty, originality and known limits
+12. Next steps, closing statement, team, GitHub QR code
+13. Appendix A: references
+14. Appendix B: detailed architecture
+
+For the 3-minute video, spend most of the time on slides 5, 6, 8 and 10.
 
 ## Evidence screenshots (judges look for these)
 
