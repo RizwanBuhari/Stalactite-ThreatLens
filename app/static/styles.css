@@ -74,6 +74,9 @@ textarea:focus, input:focus, select:focus { outline: 2px solid rgba(16,185,129,.
 .badge { background: var(--amber-soft); color: var(--amber-ink); border-radius: 8px; padding: 4px 10px; font-size: 14px; font-weight: 600; }
 .sub { color: var(--muted); margin: 6px 0 16px; }
 .sugg { display: grid; grid-template-columns: 52px 1fr; gap: 16px; margin-bottom: 14px; padding: 20px; }
+.sugg.done-accepted { border-color: var(--emerald); box-shadow: inset 4px 0 0 var(--emerald), var(--shadow); }
+.sugg.done-corrected { border-color: #8FB0E0; box-shadow: inset 4px 0 0 #2C5DA8, var(--shadow); }
+.sugg.done-rejected { opacity: .7; box-shadow: inset 4px 0 0 var(--danger), var(--shadow); }
 .rank { font-size: 20px; font-weight: 700; color: var(--muted); border-right: 1px solid var(--line); height: 34px; }
 .tid { color: var(--emerald-ink); font-weight: 700; font-size: 14px; }
 .sugg h3 { margin: 2px 0 6px; font-size: 20px; }

@@ -162,8 +162,10 @@ function renderAnalyze() {
 
 function suggestionCard(s, i) {
   const d = state.decisions[i];
-  const stateLabel = d.decision === "corrected" ? `✎ Corrected to ${d.corrected_to}` : DECISION_TEXT[d.decision];
-  return h("div", { class: "card sugg" },
+  const stateLabel = d.decision === "corrected" ? `✎ Corrected to ${d.corrected_to} · ${d.corrected_name}` : DECISION_TEXT[d.decision];
+  const decided = d.decision !== "pending";
+  const undo = () => decide(i, "pending", { corrected_to: "", corrected_name: "" });
+  return h("div", { class: `card sugg${decided ? ` done-${d.decision}` : ""}` },
     h("div", { class: "rank" }, String(i + 1).padStart(2, "0")),
     h("div", {},
       h("div", { class: "tid" }, s.technique_id),
@@ -175,8 +177,10 @@ function suggestionCard(s, i) {
       h("div", { class: "actions" },
         h("span", { class: `state ${d.decision}` }, stateLabel),
         h("button", { class: "btn", onclick: (e) => explain(i, e.currentTarget), disabled: !state.health?.granite?.available }, "Why?"),
-        h("button", { class: "btn go", onclick: () => decide(i, "accepted", { corrected_to: "", corrected_name: "" }) }, "✓ Accept"),
-        h("button", { class: "btn", onclick: () => { state.picker = state.picker === i ? null : i; render(); } }, "✎ Correct")),
+        decided
+          ? h("button", { class: "linkbtn", onclick: undo, title: "Back to undecided" }, "Undo")
+          : [h("button", { class: "btn go", onclick: () => decide(i, "accepted", { corrected_to: "", corrected_name: "" }) }, "✓ Accept"),
+             h("button", { class: "btn", onclick: () => { state.picker = state.picker === i ? null : i; render(); } }, "✎ Correct")]),
       state.picker === i ? picker(i) : null,
       whyBlock(i)));
 }
