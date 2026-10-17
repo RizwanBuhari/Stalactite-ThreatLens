@@ -93,7 +93,7 @@ async function explain(i, btn) {
   const s = state.analysis.suggestions[i];
   btn.disabled = true; btn.replaceChildren(h("span", { class: "spinner dark" }), "Granite is writing on LinuxONE…");
   try {
-    state.explains[i] = await api("/api/explain", { technique_id: s.technique_id, evidence: s.evidence });
+    state.explains[i] = await api("/api/explain", { technique_id: s.technique_id, evidence: s.evidence, evidence_terms: s.evidence_terms });
   } catch (e) { state.explains[i] = { error: e.message }; }
   render();
 }
@@ -101,9 +101,13 @@ function whyBlock(i) {
   const x = state.explains[i];
   if (!x) return null;
   if (x.error) return h("div", { class: "why" }, x.error);
-  return h("div", { class: "why" }, h("div", { class: "why-h" }, "AI explanation · IBM Granite, generated on LinuxONE"),
+  const granite = x.kind !== "evidence";
+  return h("div", { class: "why" },
+    h("div", { class: "why-h" }, granite ? "AI explanation · IBM Granite, generated on LinuxONE" : "Evidence-based explanation"),
     x.text || "(no explanation generated)",
-    h("small", {}, `${x.model} · ${x.seconds}s. Generated text: check it against the evidence above.`));
+    h("small", {}, granite
+      ? `Focused on: “${x.focus}” · ${x.model} · ${x.seconds}s. Generated text: check it against the evidence above.`
+      : `Granite only repeated the passage, so ThreatLens shows the matching clause and the ATT&CK definition instead.`));
 }
 
 // ---------- Analyze page ----------

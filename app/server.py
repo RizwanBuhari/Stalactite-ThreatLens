@@ -146,8 +146,9 @@ class App:
         if tid not in self.techniques:
             raise ValueError("Unknown technique.")
         evidence, _ = redact(str(body.get("evidence", ""))[:1000])
+        terms = [str(t)[:60] for t in (body.get("evidence_terms") or [])][:8]
         info = self.technique(tid)
-        return self.granite.explain(evidence, tid, info["name"], self.summary(info["description"]))
+        return self.granite.explain(evidence, tid, info["name"], self.summary(info["description"]), terms)
 
     def search(self, q):
         q = q.strip().lower()
